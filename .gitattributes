@@ -1,0 +1,4 @@
+* text=auto
+# Git runs hooks with sh, also on Windows: they must keep LF line endings.
+hooks/* text eol=lf
+*.sh text eol=lf

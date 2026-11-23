@@ -1,0 +1,77 @@
+#!/bin/sh
+# Shipshape secret scan: a git pre-commit hook with no dependencies (POSIX sh, git, grep, awk).
+# Blocks a commit that adds an obvious secret: key files, .env files, well-known API key formats,
+# connection strings with passwords, hard-coded passwords and service-role tokens.
+#
+# False positive? Put "shipshape:allow-secret" in a comment on that line, or skip the hook once with
+# `git commit --no-verify`. It is a safety net, not a guarantee: the review skill still checks secrets.
+
+status=0
+nl='
+'
+
+# 1. Files that usually hold secrets.
+files=$(git diff --cached --name-only --diff-filter=ACMR)
+bad_files=''
+old_ifs=$IFS
+IFS=$nl
+for f in $files; do
+  base=${f##*/}
+  case "$base" in
+    .env.example | .env.sample | .env.template | .env.dist) ;;
+    .env | .env.* | *.pem | *.key | *.p12 | *.pfx | id_rsa | id_dsa | id_ecdsa | id_ed25519 | \
+    credentials.json | service-account*.json | *-service-account.json | *serviceAccountKey*.json)
+      bad_files="$bad_files  $f$nl" ;;
+  esac
+done
+IFS=$old_ifs
+
+# 2. Secrets in the added lines, printed as "path: line".
+added=$(git diff --cached -U0 --no-color --diff-filter=ACMR | awk '
+  /^\+\+\+ / { file = substr($0, 7); next }
+  /^\+/      { print file ": " substr($0, 2) }
+' | grep -v 'shipshape:allow-secret')
+
+known='-----BEGIN ([A-Z]+ )*PRIVATE KEY-----'
+known="$known|AKIA[0-9A-Z]{16}"                                   # AWS access key
+known="$known|gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,}" # GitHub
+known="$known|sk-ant-[A-Za-z0-9_-]{20,}"                          # Anthropic
+known="$known|sk-(proj-)?[A-Za-z0-9_-]{32,}"                      # OpenAI
+known="$known|[sr]k_live_[A-Za-z0-9]{16,}"                        # Stripe live keys
+known="$known|xox[abprs]-[A-Za-z0-9-]{10,}"                       # Slack
+known="$known|AIza[0-9A-Za-z_-]{35}"                              # Google API key
+known="$known|SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}"         # SendGrid
+known="$known|(postgres(ql)?|mysql|mariadb|mongodb(\+srv)?|rediss?|amqps?)://[^:/@ ]+:[^@ ]+@" # URL with password
+
+assign='(password|passwd|pwd|secret|api_?key|apikey|access_?token|auth_?token|client_?secret|private_?key)["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{8,}["'"'"']'
+placeholder='your|example|sample|changeme|change_me|placeholder|dummy|xxxx|<|\$\{|process\.env|import\.meta\.env|os\.environ|getenv|test|fake|mock'
+
+jwt='eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'
+
+hits=$(
+  {
+    printf '%s\n' "$added" | grep -E -e "$known"
+    printf '%s\n' "$added" | grep -Ei -e "$assign" | grep -Eiv -e "$placeholder"
+    printf '%s\n' "$added" | grep -Ei 'service' | grep -E -e "$jwt"
+  } | sort -u | cut -c1-160
+)
+
+if [ -n "$bad_files" ]; then
+  printf '\nShipshape: these files usually hold secrets and should not be committed:\n%s' "$bad_files" >&2
+  printf 'Add them to .gitignore and unstage them: git restore --staged <file>\n' >&2
+  status=1
+fi
+
+if [ -n "$hits" ]; then
+  printf '\nShipshape: this commit seems to add a secret:\n' >&2
+  printf '%s\n' "$hits" | sed 's/^/  /' >&2
+  printf '\nMove it to an environment variable or your secrets file (listed in .gitignore).\n' >&2
+  printf 'If a real key was ever pushed anywhere, rotate it: removing it from the code is not enough.\n' >&2
+  status=1
+fi
+
+if [ "$status" -ne 0 ]; then
+  printf 'False positive? Add "shipshape:allow-secret" in a comment on that line, or commit with --no-verify.\n\n' >&2
+fi
+
+exit "$status"
