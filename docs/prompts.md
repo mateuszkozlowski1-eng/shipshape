@@ -67,6 +67,11 @@ Open a **new** session, chat or subagent (not the one that wrote the code) and p
 
 > Run the ship skill for this release. Don't deploy; show me the checklist first.
 
+**The agent made the same mistake again**
+
+> You <skipped the API tests / touched the migrations / ...> again. Use the learn skill: propose a
+> lesson and where it should live so it doesn't happen a third time.
+
 **End of the day**
 
 > Run the handoff skill.

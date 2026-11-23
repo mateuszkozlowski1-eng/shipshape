@@ -14,7 +14,7 @@ Usage: ./install.sh [project-folder] [--no-hook] [--update-skills]
 
   project-folder    where to install (default: current folder)
   --no-hook         don't install the secret-scan pre-commit hook
-  --update-skills   replace the skill files with this version's (your AGENTS.md and DECISIONS.md stay)
+  --update-skills   replace the skill files with this version's (AGENTS.md, DECISIONS.md, LESSONS.md stay)
 EOF
 }
 
@@ -48,7 +48,7 @@ copy() { # copy <source> <relative destination> <overwrite: 0|1>
   fi
 }
 
-for f in AGENTS.md CLAUDE.md DECISIONS.md; do
+for f in AGENTS.md CLAUDE.md DECISIONS.md LESSONS.md; do
   copy "$KIT/kit/$f" "$f" 0
 done
 
@@ -82,6 +82,13 @@ if [ "$hook" = 1 ]; then
       cp "$KIT/hooks/pre-commit" "$dst"; chmod +x "$dst"; echo "  added    pre-commit hook (secret scan)"
     fi
   fi
+fi
+
+# Upgrading from 0.1.0: the project's own AGENTS.md does not know the learn skill yet.
+if [ -f "$target/AGENTS.md" ] && ! grep -q 'skills/learn/SKILL.md' "$target/AGENTS.md"; then
+  echo
+  echo "Your AGENTS.md predates the learn skill. Copy rule 9 (Learn from mistakes), the learn row of the"
+  echo "Skills table and the '## Project rules' section from $KIT/kit/AGENTS.md into it."
 fi
 
 if [ "$skipped" = 1 ]; then

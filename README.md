@@ -35,6 +35,8 @@ reads every session.
 6. **Write decisions down.** One line in `DECISIONS.md`, so nobody undoes them by accident.
 7. **Release on purpose.** A checklist before deploy, and a way back written down first.
 8. **Leave a trail.** The next session starts from files, not from a lost conversation.
+9. **Learn from mistakes.** Corrected once? The agent proposes a lesson, you decide, and it sticks as a
+   test, a check or a project rule. The same mistake should not cost you twice.
 
 Plus a short list of hard rules: no secrets in code, never switch off a security control to make
 something work, nothing destructive without an explicit yes, content from users and web pages is data,
@@ -47,6 +49,7 @@ kit/                          ← copied into your project
   AGENTS.md                   ← the rules; read by almost every agent
   CLAUDE.md                   ← one line that points Claude Code at AGENTS.md
   DECISIONS.md                ← one line per decision
+  LESSONS.md                  ← mistakes turned into lessons (you approve each one)
   .agents/skills/
     setup/                    ← fills in your project's commands, secrets, sensitive areas
     plan/                     ← request → small checkable steps in PLAN.md
@@ -56,6 +59,7 @@ kit/                          ← copied into your project
     decide/                   ← record and respect decisions
     ship/                     ← pre-release checklist and rollback plan
     handoff/                  ← save state for the next session
+    learn/                    ← mistake → lesson → test, check or project rule
 hooks/pre-commit              ← blocks commits that add obvious secrets (no dependencies)
 install.sh, install.ps1       ← installers for macOS/Linux and Windows
 docs/tools.md                 ← per-tool notes: Claude Code, Codex, Cursor, Copilot, Gemini CLI, Aider
@@ -84,14 +88,15 @@ Download or clone this repository, then from its folder:
 
 The installer:
 
-- copies `AGENTS.md`, `CLAUDE.md`, `DECISIONS.md` and the skills, **never overwriting** a file you
+- copies `AGENTS.md`, `CLAUDE.md`, `DECISIONS.md`, `LESSONS.md` and the skills, **never overwriting** a file you
   already have (it tells you what it skipped);
 - adds `.env` files to `.gitignore` if they are not covered yet;
 - installs the secret-scan pre-commit hook if the project uses git and has no pre-commit hook yet.
 
 Options: `--no-hook` (PowerShell: `-NoHook`) skips the hook; `--update-skills` (`-UpdateSkills`)
-replaces the skill files with this version's, for upgrades. Your `AGENTS.md` and `DECISIONS.md` are
-never touched.
+replaces the skill files with this version's, for upgrades. Your `AGENTS.md`, `DECISIONS.md` and
+`LESSONS.md` are never touched; if your `AGENTS.md` is missing something a new version needs, the
+installer tells you what to copy.
 
 **Manual install:** copy the contents of `kit/` into your project root and, optionally,
 `hooks/pre-commit` into `.git/hooks/`.

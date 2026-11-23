@@ -27,7 +27,8 @@ description: Checklist to run before saying a step or task is done — proves it
    another user's data, a network or service failure. Handled, or consciously out of scope?
 5. **Review.** Run the `review` skill on the change, with fresh eyes if your tool allows. Fix every
    blocker before you go on.
-6. **Paperwork.** Update the step's status in `PLAN.md`. Run `decide` if you decided something.
+6. **Paperwork.** Update the step's status in `PLAN.md`. Run `decide` if you decided something, and
+   `learn` if the user had to correct you or review caught a repeated mistake.
 7. **Commit** with a message that says what changed and why, if the user lets you commit.
 
 ## Report

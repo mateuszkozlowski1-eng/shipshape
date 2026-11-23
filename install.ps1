@@ -9,7 +9,7 @@
 param(
     [string]$Target = '.',
     [switch]$NoHook,       # don't install the secret-scan pre-commit hook
-    [switch]$UpdateSkills  # replace the skill files with this version's (AGENTS.md and DECISIONS.md stay)
+    [switch]$UpdateSkills  # replace the skill files with this version's (AGENTS.md, DECISIONS.md, LESSONS.md stay)
 )
 $ErrorActionPreference = 'Stop'
 
@@ -38,7 +38,7 @@ function Copy-ShipshapeFile([string]$Source, [string]$Relative, [bool]$Overwrite
     }
 }
 
-foreach ($f in 'AGENTS.md', 'CLAUDE.md', 'DECISIONS.md') {
+foreach ($f in 'AGENTS.md', 'CLAUDE.md', 'DECISIONS.md', 'LESSONS.md') {
     Copy-ShipshapeFile (Join-Path $Kit "kit\$f") $f $false
 }
 
@@ -91,6 +91,14 @@ if (-not $NoHook) {
             }
         }
     }
+}
+
+# Upgrading from 0.1.0: the project's own AGENTS.md does not know the learn skill yet.
+$agents = Join-Path $Target 'AGENTS.md'
+if ((Test-Path -LiteralPath $agents) -and -not (Select-String -LiteralPath $agents -Pattern 'skills/learn/SKILL.md' -SimpleMatch -Quiet)) {
+    Write-Host ""
+    Write-Host "Your AGENTS.md predates the learn skill. Copy rule 9 (Learn from mistakes), the learn row of the"
+    Write-Host "Skills table and the '## Project rules' section from $Kit\kit\AGENTS.md into it."
 }
 
 if ($script:skipped) {

@@ -25,6 +25,8 @@ knows which change did what.
    design decision, say so; don't pile workarounds on top.
 6. **Prove it.** The test from step 2 passes, the full suite passes, the original reproduction now
    behaves. Remove debug logging. Then run `done`.
+7. **Could it happen again?** If the cause was a habit or an assumption rather than a one-off slip
+   (a check nobody runs, a wrong belief about how something works), propose a lesson with `learn`.
 
 ## Stop rule
 

@@ -15,7 +15,7 @@ Give the reviewer:
 - the diff: `git diff` for uncommitted work, `git diff <base>...HEAD` for a branch, or
   `git show <commit>`;
 - the step being reviewed (its line from `PLAN.md`, or the user's request);
-- `AGENTS.md` and `DECISIONS.md`.
+- `AGENTS.md`, `DECISIONS.md` and `LESSONS.md`.
 
 **Do not** give it the author's reasoning, notes, chat history or summary of "what I did". A review
 anchored on the author's story confirms the story.
@@ -40,7 +40,7 @@ A different model than the one that wrote the code is a bonus, not a requirement
    pass for the rest. Use `security-checklist.md` next to this file.
 4. **Data.** Migrations safe to run and to roll back; deletes and updates scoped (no `DELETE` without
    `WHERE`); nothing that loses user data on an error.
-5. **Fit.** Follows `DECISIONS.md` and the project's existing patterns; no second way of doing the same
+5. **Fit.** Follows `DECISIONS.md`, the project rules in `AGENTS.md` and the existing patterns; no second way of doing the same
    thing; no dependency added without a reason.
 6. **Simplicity.** Code that could be much simpler, dead code, copy-paste that will drift apart.
 
@@ -70,3 +70,7 @@ no finding: "might be insecure" is not a finding. Don't pad the list; "no findin
 
 The author fixes the blockers, then the reviewer looks again at **the fixes only**. Findings the author
 disagrees with go to the user, with both views in one line each.
+
+**Same mistake again?** If a finding repeats an entry in `LESSONS.md`, or the same kind of problem was
+found in an earlier review, say so in the finding (`repeat of LESSONS.md 2026-03-02`). The author then
+runs the `learn` skill: a lesson that did not stick needs a stronger place, usually a test.

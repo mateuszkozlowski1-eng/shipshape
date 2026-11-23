@@ -29,11 +29,15 @@ of the conversation does not survive; files do.
 
    No `PLAN.md` because the work was small? Write the same few lines into a new one anyway.
 3. **Record decisions** made in this session with `decide`, so they don't live only in the chat.
-4. **Tell the user** in two or three lines what state things are in and how to resume:
+4. **Look back once.** Did the user correct you, did review find the same thing twice, did something
+   take far longer than it should? Propose a lesson with `learn`. Nothing worth it? Skip this; don't
+   invent lessons.
+5. **Tell the user** in two or three lines what state things are in and how to resume:
    "Start the next session with: read PLAN.md and continue."
 
 ## Starting from a handoff
 
-Read `AGENTS.md`, `PLAN.md` (the Handoff section first) and `DECISIONS.md`. Check that what it says is
+Read `AGENTS.md`, `PLAN.md` (the Handoff section first), `DECISIONS.md` and the `proposed` entries in
+`LESSONS.md` (ask the user about them if they are still open). Check that what it says is
 still true (`git status`, `git log -5`, run the tests) before building on it. Then continue with the
 step named under **Next**.
